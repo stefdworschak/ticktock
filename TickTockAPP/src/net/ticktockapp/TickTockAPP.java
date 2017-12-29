@@ -7,6 +7,8 @@ package net.ticktockapp;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -65,9 +67,11 @@ public class TickTockAPP {
         
         TickTockGUI gui = new TickTockGUI();
         gui.setVisible(true);
-        gui.setDefaultCloseOperation(0);
+        gui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         gui.setTitle("Aux Codes App - "+username);
         gui.setResizable(false);
+       // gui.setSize(200,200);
+       // gui.setVisible(true);   
 
     }
     
