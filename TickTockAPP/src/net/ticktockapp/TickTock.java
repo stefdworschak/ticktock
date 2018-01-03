@@ -33,13 +33,9 @@ public class TickTock {
         }
         return conn;
     }
-   
-   
-   
    public TickTock(){
         
    }
-    
    public String createTable(String CreateTblStatement) {
         // SQLite connection string
         String sql = CreateTblStatement; 
@@ -54,7 +50,6 @@ public class TickTock {
         }
         return result;
     }
-   
    public String insert(String insertStatement){
        
        String sql = insertStatement;
@@ -73,18 +68,18 @@ public class TickTock {
    
    public String insertInto(String username, String workcode, String workflow){
        
-       String sql = "INSERT INTO records (username, workcode, workflow) VALUES (?,?,?);";
+       String sql = "INSERT INTO records (ts, username, workcode, workflow) VALUES (STRFTIME(\"%Y-%m-%d %H:%M:%f\", 'NOW'),?,?,?);";
        String result;
-       Calendar calendar = Calendar.getInstance();
-       Timestamp jTs = new Timestamp(calendar.getTime().getTime());
-       System.out.println(calendar);    
+       //Calendar calendar = Calendar.getInstance();
+       //Timestamp jTs = new Timestamp(calendar.getTime().getTime());
+       //System.out.println(jTs);    
        try (Connection conn = this.connect();
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             //pstmt.setTimestamp(1, jTs);
             pstmt.setString(1, username);
             pstmt.setString(2, workcode);
             pstmt.setString(3, workflow);
-            System.out.println(sql);
+            //System.out.println(sql);
             pstmt.executeUpdate();
             result = "Success";
         } catch (SQLException e) {

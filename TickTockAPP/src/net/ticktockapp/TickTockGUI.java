@@ -5,24 +5,34 @@
  */
 package net.ticktockapp;
 
+import datechooser.beans.DateChooserCombo;
 import java.awt.Color;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.SwingConstants;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.Timer;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -30,21 +40,31 @@ import javax.swing.Timer;
  */
 public class TickTockGUI extends JFrame {
     
+    //Collapse All = Ctrl + Shift + Minus;
+    
+    private KeyListener k;
     private Timer timer;
     private int speed = 1000;
     private int seconds = 0,minutes=0, hours=0;
     private int duration = 0;
     private JPanel p;
-    private JLabel workflowLbl, statusOutputLbl, statusLbl, counterLbl;
+    private JLabel workflowLbl, statusOutputLbl, statusLbl, counterLbl, nameLbl, dateChooserLblOne, dateChooserLblTwo;
     private JComboBox workflowCbo;
+    private JTextField nameTxt;
+    private JTable tbl;
+    private DefaultTableModel mdl;
+    private JScrollPane scr;
+    private DateChooserCombo dateOneChooser, dateTwoChooser;
+    private JInternalFrame iFrame;
     
     private JButton oneBtn, twoBtn, threeBtn, fourBtn, fiveBtn, sixBtn, sevenBtn, eightBtn, nineBtn, zeroBtn, loginBtn, logoutBtn, 
-                    adminBtn, monitorBtn;
+                    adminBtn, monitorBtn, showRecordsBtn, hideRecordsBtn, filterBtn, addExceptionBtn;
     
     private String [] types = new String[10];
-    private String [] workflows = new String[20];
+    private String [] workflows = new String[19];
     private DefaultComboBoxModel cboModel;
     private TickTock tick;
+    
     
     public TickTockGUI (){
         initComponents();       
@@ -113,28 +133,45 @@ public class TickTockGUI extends JFrame {
                 loginBtnActionPerformed(evt);
             }
         });
-        
         logoutBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 logoutBtnActionPerformed(evt);
             }
         });
-        
         adminBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 adminBtnActionPerformed(evt);
             }
         });
-        
         monitorBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 monitorBtnActionPerformed(evt);
             }
         });
+        showRecordsBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                showRecordsBtnActionPerformed(evt);
+            }
+        });
+        hideRecordsBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                hideRecordsBtnActionPerformed(evt);
+            }
+        });
+        filterBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                filterRecordsBtnActionPerformed(evt);
+            }
+        });
+        addExceptionBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addExceptionBtnActionPerformed(evt);
+            }
+        });
     }
     public void addKeyListeners(){
-        
-                p.addKeyListener(new KeyListener(){
+            
+        k = new KeyListener(){
              @Override
                 public void keyPressed(KeyEvent e) {
                     System.out.println(e.getKeyCode());
@@ -165,8 +202,13 @@ public class TickTockGUI extends JFrame {
                 public void keyReleased(KeyEvent e) {
                     //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
                 }
-        });
+        };
+        
+            p.addKeyListener(k);
     
+    }
+    public void removeKeyListeners(){
+            p.removeKeyListener(k);
     }
     
     public void oneBtnActionPerformed(java.awt.event.ActionEvent evt) {
@@ -187,32 +229,40 @@ public class TickTockGUI extends JFrame {
     public void fourBtnActionPerformed(java.awt.event.ActionEvent evt) {
         setStatus(3);
         startCounter();
+        insertRecord(types[3]);
     }
     public void fiveBtnActionPerformed(java.awt.event.ActionEvent evt) {
         setStatus(4);     
         startCounter();
+        insertRecord(types[4]);
     }
     public void sixBtnActionPerformed(java.awt.event.ActionEvent evt) {
         setStatus(5); 
         startCounter();
+        insertRecord(types[5]);
     }
     public void sevenBtnActionPerformed(java.awt.event.ActionEvent evt) {
         setStatus(6);
         startCounter();
+        insertRecord(types[6]);
     }
     public void eightBtnActionPerformed(java.awt.event.ActionEvent evt) {
         setStatus(7);
         startCounter();
+        insertRecord(types[7]);
     }
     public void nineBtnActionPerformed(java.awt.event.ActionEvent evt) {
         setStatus(8);
         startCounter();
+        insertRecord(types[8]);
     }
     public void zeroBtnActionPerformed(java.awt.event.ActionEvent evt) {
         setStatus(9);
         startCounter();
+        insertRecord(types[9]);
     }
     public void loginBtnActionPerformed(java.awt.event.ActionEvent evt) {
+        addKeyListeners();
         minimizeOnClose();
         startCounter();
         setStatus(10);
@@ -234,6 +284,7 @@ public class TickTockGUI extends JFrame {
     }
     public void logoutBtnActionPerformed(java.awt.event.ActionEvent evt) {
         timer.stop();
+        removeKeyListeners();
         setStatus(11);
         oneBtn.setEnabled(false);
         twoBtn.setEnabled(false);
@@ -266,6 +317,56 @@ public class TickTockGUI extends JFrame {
         monitorGui.setVisible(true);
         monitorGui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         monitorGui.setResizable(false);
+    }
+    public void showRecordsBtnActionPerformed(java.awt.event.ActionEvent evt) {
+        loadRecords(tbl,"","");
+        this.setSize(950, 500);
+        showRecordsBtn.setVisible(false);
+        hideRecordsBtn.setVisible(true);
+    }
+    public void hideRecordsBtnActionPerformed(java.awt.event.ActionEvent evt) {
+        
+        this.setSize(420, 500);
+        showRecordsBtn.setVisible(true);
+        hideRecordsBtn.setVisible(false);
+    }
+    public void filterRecordsBtnActionPerformed(java.awt.event.ActionEvent evt) {
+        
+        String fromDate, toDate;
+        SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat conv = new SimpleDateFormat("dd/mm/yy HH:mm:ss");
+        String fromDateFormat, toDateFormat;
+        
+        fromDate = dateOneChooser.getText()+ " 00:00:00";
+        toDate = dateTwoChooser.getText() + " 23:59:59";
+        
+        System.out.println(fromDate+" - "+toDate);
+        try{
+            fromDateFormat = sd.format(conv.parse(fromDate).getTime());    
+            toDateFormat = sd.format(conv.parse(toDate).getTime());
+            System.out.println(fromDateFormat+" - "+toDateFormat);
+            loadRecords(tbl,fromDateFormat,toDateFormat);
+        } catch(ParseException e){
+            System.out.println(e.getMessage());
+        }
+        //loadRecords(tbl,"","");
+        
+    }
+    public void addExceptionBtnActionPerformed(java.awt.event.ActionEvent evt) {
+        
+        Point onScreen = this.getLocationOnScreen();
+        int winHeight = this.getHeight();
+        int winWidth = this.getWidth();
+        int x = (int) onScreen.getX();
+        int y = (int) onScreen.getY();
+        System.out.println("x: "+x+", y: "+y);
+        TickTockGUI win = this;
+        TickTockAddExceptionGUI exceptionGui = new TickTockAddExceptionGUI(x,y,winWidth,winHeight, win);
+        exceptionGui.setVisible(true);
+        exceptionGui.setTitle("Add an Exception");
+        exceptionGui.setResizable(false);
+        this.setEnabled(false);
+        
     }
     
     public void setStatus(int type){
@@ -308,6 +409,8 @@ public class TickTockGUI extends JFrame {
     }
     
     public void initComponents(){
+        mdl = new DefaultTableModel();
+        tbl = new JTable();
         
         tick = new TickTock();
         types[0]="SRT"; types[1]="Tasks"; types[2]="POC"; types[3]="Meeting"; types[4]="Coaching"; 
@@ -331,10 +434,7 @@ public class TickTockGUI extends JFrame {
         p.setLayout(null);
         p.setBackground(Color.white);
         
-        p.setFocusable(true);
-        addKeyListeners();
-        
-        
+        p.setFocusable(true);    
         add(p);
         //x, y, width, height
         
@@ -366,7 +466,9 @@ public class TickTockGUI extends JFrame {
         logoutBtn = new JButton("<html><center><span style='font-size:8px'>Logout</span><br /><span style='font-size:16px'>#</span></center><html>");
         adminBtn = new JButton("@");
         monitorBtn = new JButton(":-)");
-                
+        showRecordsBtn = new JButton("Show My Records");
+        hideRecordsBtn = new JButton("Hide My Records");
+        
         oneBtn.setBounds(70, 70, 80, 80);
         oneBtn.setMargin(new Insets(0,0,0,0));
         twoBtn.setBounds(160, 70, 80,80);
@@ -402,6 +504,40 @@ public class TickTockGUI extends JFrame {
         monitorBtn.setBounds(345,435,30,30);
         monitorBtn.setMargin(new Insets(0,0,0,0));
         
+        nameLbl = new JLabel("Logged in as:");
+        nameTxt = new JTextField(System.getProperty("user.name"));
+        nameLbl.setBounds(10,435,80,20);
+        nameTxt.setBounds(90,435,80,20);
+        showRecordsBtn.setBounds(180, 435, 150, 20);
+        showRecordsBtn.setMargin(new Insets(0,0,0,0));
+        hideRecordsBtn.setBounds(180, 435, 150, 20);
+        hideRecordsBtn.setMargin(new Insets(0,0,0,0));
+        
+        dateOneChooser = new DateChooserCombo();
+        dateTwoChooser = new DateChooserCombo();
+        
+        dateChooserLblOne = new JLabel("Display Records from:");
+        dateChooserLblTwo = new JLabel("To:");
+        filterBtn = new JButton(">");
+        addExceptionBtn = new JButton("Add Exception");
+        
+        dateChooserLblOne.setBounds(430,10,130,20);
+        dateOneChooser.setBounds(570,10,80,20);
+        dateChooserLblTwo.setBounds(665,10,30,20);
+        dateTwoChooser.setBounds(700,10,80,20);
+
+        filterBtn.setBounds(785,10,20,20);
+        filterBtn.setMargin(new Insets(0,0,0,0));
+        addExceptionBtn.setBounds(830,10,100,20);
+        addExceptionBtn.setMargin(new Insets(0,0,0,0));
+        
+        p.add(dateOneChooser);
+        p.add(dateChooserLblOne);
+        p.add(dateTwoChooser);
+        p.add(dateChooserLblTwo);
+        p.add(filterBtn);
+        p.add(addExceptionBtn);
+        
         p.add(statusLbl);
         p.add(statusOutputLbl);
         p.add(counterLbl);
@@ -421,7 +557,11 @@ public class TickTockGUI extends JFrame {
         p.add(logoutBtn);
         p.add(adminBtn);
         p.add(monitorBtn);
-        
+        p.add(nameLbl);
+        p.add(nameTxt);
+        p.add(showRecordsBtn);
+        p.add(hideRecordsBtn);
+        adminAccess();
         oneBtn.setEnabled(false);
         twoBtn.setEnabled(false);
         threeBtn.setEnabled(false);
@@ -433,14 +573,20 @@ public class TickTockGUI extends JFrame {
         nineBtn.setEnabled(false);
         zeroBtn.setEnabled(false);
         logoutBtn.setEnabled(false);
+        hideRecordsBtn.setVisible(false);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setEventListeners();
         p.requestFocus();
+        
+        scr = new JScrollPane(tbl);
+        scr.setBounds(430,35,500,425);
+        tbl.setEnabled(false);
+        p.add(scr);
 
     }
     
     public void insertRecord(String code){
-        String username = System.getProperty("user.name");
+        String username = nameTxt.getText();
         String workflow = workflowCbo.getItemAt(workflowCbo.getSelectedIndex()).toString();
         String workCode = code;
         String result;
@@ -449,10 +595,7 @@ public class TickTockGUI extends JFrame {
         if(!result.equals("Success")){
             JOptionPane.showMessageDialog(null,"There was an error saving the record");
             //Implement backup logic
-        } else {
-            
-            System.out.println("Result Error: "+result);
-        }
+        } 
     }
 
     public void minimizeOnClose(){
@@ -466,5 +609,78 @@ public class TickTockGUI extends JFrame {
         });
         
     }
+    public void loadRecords(JTable tbl, String from, String to){
+        
+        String username = nameTxt.getText();
+        String firstDate = from;
+        String lastDate = to;
+        String date, time, dateFilter;
+        JTable recordTbl = tbl;
+        DefaultTableModel recordMdl = new DefaultTableModel();
+        ArrayList<ArrayList> result;
+        SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat st = new SimpleDateFormat("HH:mm:ss");
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment( JLabel.CENTER );
+        
+        recordMdl.addColumn("Date");
+        recordMdl.addColumn("Time");
+        recordMdl.addColumn("Work Code");
+        recordMdl.addColumn("Workflow");
+        
+        if(from.equals("") || to.equals("")){
+            dateFilter="";
+        } else {
+            dateFilter = "AND ts >='"+firstDate+"' "
+                    + "AND ts <= '"+lastDate+"'";
+        }
+        System.out.println("SELECT ts, workcode, workflow FROM records WHERE username ='"+username+"' "+dateFilter+" ORDER BY ts DESC;");
+        result=tick.select("SELECT ts, workcode, workflow FROM records WHERE username ='"+username+"' "+dateFilter+" ORDER BY ts DESC;");
+        for(int i=0; i < result.size();i++){
+            ArrayList<String> row = result.get(i);
+            date = result.get(i).toString().split(" ")[0].substring(1,11);
+            time = result.get(i).toString().split(" ")[1].substring(0,8);
+            recordMdl.addRow(populate(date,time,row.get(1),row.get(2)));
+            System.out.println(populate(date,time,row.get(1),row.get(2)));
+        }
+        recordTbl.setModel(recordMdl);
+        recordTbl.getColumnModel().getColumn(0).setCellRenderer( centerRenderer );
+        recordTbl.getColumnModel().getColumn(1).setCellRenderer( centerRenderer );
+        recordTbl.getColumnModel().getColumn(2).setCellRenderer( centerRenderer );
+        recordTbl.getColumnModel().getColumn(3).setCellRenderer( centerRenderer );
+        recordTbl.getColumnModel().getColumn(0).setPreferredWidth(100);
+        recordTbl.getColumnModel().getColumn(1).setPreferredWidth(100);
+        recordTbl.getColumnModel().getColumn(2).setPreferredWidth(100);
+        recordTbl.getColumnModel().getColumn(3).setPreferredWidth(200);
+        
+        recordTbl.setModel(recordMdl);
+        
+    }
     
+    public String[] populate(String date, String time, String workCode,  String workflow){
+        String[] rowData = {date, time, workCode, workflow};
+        return rowData;
+    }
+    
+    public void adminAccess(){
+       
+        String username = System.getProperty("user.name");
+        if(username.equals("sdworschak")){
+            unhideAdminComponents();
+        } else {
+            hideAdminComponents();
+        }
+        
+        
+    }
+    public void unhideAdminComponents(){
+        nameTxt.setEnabled(true);
+        monitorBtn.setVisible(true);
+        adminBtn.setVisible(true);
+    }
+    public void hideAdminComponents(){
+        nameTxt.setEnabled(false);
+        monitorBtn.setVisible(false);
+        adminBtn.setVisible(false);
+    }
 }
