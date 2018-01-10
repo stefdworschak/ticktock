@@ -28,14 +28,16 @@ import javax.swing.table.DefaultTableModel;
  */
 public class TickTockMonitorGUI extends JFrame {
     
+    private String directory = System.getProperty("user.dir");
+    private String url = "jdbc:sqlite:"+directory+"/database.db";
+    private TickTock tick = new TickTock(url);
+    
     private JLabel jLabel1, jLabel4, jLabel3;
     private JTable jTbl;
     private JScrollPane scr;
     private JPanel p;
     private DefaultTableCellRenderer centerRenderer;
     private Timer timer;
-    
-    private TickTock tick = new TickTock();
     
     //String[] cols = {"Col 1", "Col2"};
     //String[][] data = {{"Hello", "World"},{"Hello", "World"}};

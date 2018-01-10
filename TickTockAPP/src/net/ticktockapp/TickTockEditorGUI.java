@@ -24,25 +24,29 @@ import javax.swing.ScrollPaneConstants;
  */
 public class TickTockEditorGUI extends JFrame {
     
+    //private String directory = System.getProperty("user.dir");
+    //private String url = "jdbc:sqlite:"+directory+"/database.db";
+    private TickTock tick;
     private JPanel p;
-    private TickTock tick = new TickTock();
     private JComboBox statementType;
     private JLabel statementTypeLbl,statementLbl,returnLbl;
     private JTextArea statementArea, resultArea;
     private JButton execBtn, resetBtn, backBtn;
     private JScrollPane stmtScr, resScr;
-    private String[] stmtArr = {"CREATE DATABASE","CREATE TABLE", "INSERT", "UPDATE","SELECT", "DESCRIBE","WILDCARD","TEST CONNECTION"};
+    private String[] stmtArr = {"WILDCARD","CREATE TABLE", "INSERT", "UPDATE","SELECT", "PRAGMA","TEST CONNECTION"};
     private DefaultComboBoxModel cboModel = new DefaultComboBoxModel(stmtArr);
     
     TickTockEditorGUI(){
         //PRAGMA table_info([tablename]); <-- will get you table schema!!
         initComponents();
-    
     }
 
     public void initComponents(){
         
-        setSize(450,550);
+        tick = new TickTock();
+        tick.setUrl();
+        
+        setSize(750,600);
         setLocation(50,50);
         
         p = new JPanel();
@@ -62,7 +66,7 @@ public class TickTockEditorGUI extends JFrame {
         
         statementTypeLbl.setBounds(20,10,100,20);
         statementType.setBounds(130,10,200,20);
-        execBtn.setBounds(20,300,80,30);
+        execBtn.setBounds(20,310,80,30);
         execBtn.setMargin(new Insets(0,0,0,0));
         resetBtn.setBounds(340,10,60,20);
         resetBtn.setMargin(new Insets(0,0,0,0));
@@ -71,13 +75,13 @@ public class TickTockEditorGUI extends JFrame {
         
         //statementArea.setBounds(20,40,200,300);
         stmtScr = new JScrollPane(statementArea);
-        stmtScr.setBounds(20,40,400,250);
+        stmtScr.setBounds(20,40,710,260);
         stmtScr.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         
         //resultArea.setBounds(20,40,200,300);
         resScr = new JScrollPane(resultArea);
-        resScr.setBounds(20,340,400,250);
-        resScr.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        resScr.setBounds(20,350,710,200);
+        resScr.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         resScr.setEnabled(false);
         
         p.add(statementTypeLbl);

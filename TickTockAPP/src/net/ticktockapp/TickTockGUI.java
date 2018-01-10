@@ -63,11 +63,16 @@ public class TickTockGUI extends JFrame {
     private String [] types = new String[10];
     private String [] workflows = new String[19];
     private DefaultComboBoxModel cboModel;
+    
+    //private String directory = System.getProperty("user.dir");
+    //private String url = "jdbc:sqlite:"+directory+"/database.db";
     private TickTock tick;
     
     
+    
     public TickTockGUI (){
-        initComponents();       
+        initComponents();     
+        //System.out.println(directory);
     }
     
     public void setEventListeners(){
@@ -413,6 +418,7 @@ public class TickTockGUI extends JFrame {
         tbl = new JTable();
         
         tick = new TickTock();
+        tick.setUrl();
         types[0]="SRT"; types[1]="Tasks"; types[2]="POC"; types[3]="Meeting"; types[4]="Coaching"; 
         types[5]="Training"; types[6]="1-2-1"; types[7]="Sys Outage"; types[8]="Break"; types[9]="Lunch";
         
@@ -665,7 +671,8 @@ public class TickTockGUI extends JFrame {
     public void adminAccess(){
        
         String username = System.getProperty("user.name");
-        if(username.equals("sdworschak")){
+        //Implement Query for access
+        if(username.equals("sdworschak") || username.equals("Stefan")){
             unhideAdminComponents();
         } else {
             hideAdminComponents();

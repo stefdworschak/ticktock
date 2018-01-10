@@ -10,19 +10,28 @@ import java.awt.Insets;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import static jdk.nashorn.internal.objects.NativeRegExp.source;
 
 /**
  *
  * @author Stefan
  */
 public class TickTockAddExceptionGUI extends JFrame {
+    
+    //private String directory = System.getProperty("user.dir");
+    //private String url = "jdbc:sqlite:"+directory+"/database.db";
+    private TickTock tick;
     
     private JFrame oldForm;
     private int x,y, height,width, setHeight, setWidth;
@@ -47,6 +56,9 @@ public class TickTockAddExceptionGUI extends JFrame {
     }
     
     public void initComponents(){
+        
+        tick = new TickTock();
+        tick.setUrl();
         
         types[0]="SRT"; types[1]="Tasks"; types[2]="POC"; types[3]="Meeting"; types[4]="Coaching"; 
         types[5]="Training"; types[6]="1-2-1"; types[7]="Sys Outage"; types[8]="Break"; types[9]="Lunch";
@@ -113,6 +125,34 @@ public class TickTockAddExceptionGUI extends JFrame {
         
         JFrame win = this;
         addExitListener(win);
+        
+        addExceptionBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addExceptionBtnActionPerformed(evt);
+            }
+        });
+        
+    }
+    public void addExceptionBtnActionPerformed(java.awt.event.ActionEvent evt) {
+        
+        try {
+            Date ts;
+            String result,username;
+            username=System.getProperty("user.name");
+            SimpleDateFormat st = new SimpleDateFormat("HH:mm:ss");
+            ts = st.parse(timeTxt.getText());
+            
+            result=tick.insertException(username, workcodeCbo.getItemAt(workcodeCbo.getSelectedIndex()).toString(), workflowCbo.getItemAt(workflowCbo.getSelectedIndex()).toString(), dateChooser.getText(),timeTxt.getText());
+            if(result.equals("Success")){
+                JOptionPane.showMessageDialog(null, "Exception added successfully. Please check with your Manager to see if it was approved.");
+                oldForm.setEnabled(true);
+                this.dispose();
+            } else{
+                JOptionPane.showMessageDialog(null,result);
+            }
+        } catch(ParseException e){
+            JOptionPane.showMessageDialog(null, "The time you entered was not in the required format. Please make sure you enter it in the correct format (HH:MM:SS).");
+        }
         
     }
     
