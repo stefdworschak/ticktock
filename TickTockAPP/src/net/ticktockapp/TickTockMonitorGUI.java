@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -28,9 +29,9 @@ import javax.swing.table.DefaultTableModel;
  */
 public class TickTockMonitorGUI extends JFrame {
     
-    private String directory = System.getProperty("user.dir");
-    private String url = "jdbc:sqlite:"+directory+"/database.db";
-    private TickTock tick = new TickTock(url);
+    //private String directory = System.getProperty("user.dir");
+    //private String url = "jdbc:sqlite:"+directory+"/database.db";
+    private TickTock tick;
     
     private JLabel jLabel1, jLabel4, jLabel3;
     private JTable jTbl;
@@ -52,15 +53,14 @@ public class TickTockMonitorGUI extends JFrame {
     
     public void initComponents(){
         
+        tick = new TickTock();
+        tick.setUrl();
         setSize(750,500);
         setLocation(10,10);
         
         p = new JPanel();
         p.setLayout(null);
         add(p);
-        
-        String[] cols = {"Col 1", "Col2"};
-        String[][] data ={{},{}};
         
         centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment( JLabel.CENTER );
@@ -136,6 +136,7 @@ public class TickTockMonitorGUI extends JFrame {
                 mdl.addRow(populate(date,row.get(0),time,row.get(1),durationFormat,row.get(2)));
             } catch(ParseException e){
                 //System.out.println(e.getMessage());
+                JOptionPane.showMessageDialog(null, populate("-",row.get(0),"-",row.get(1),"0",row.get(2)));
                 mdl.addRow(populate("-",row.get(0),"-",row.get(1),"0",row.get(2)));
             }
             

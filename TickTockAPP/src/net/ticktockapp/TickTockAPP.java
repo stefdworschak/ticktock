@@ -5,19 +5,6 @@
  */
 package net.ticktockapp;
 
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import javax.swing.JFrame;
 
 /**
@@ -34,10 +21,12 @@ public class TickTockAPP {
         String username = System.getProperty("user.name");
         
         TickTockGUI gui = new TickTockGUI();
+        
         gui.setVisible(true);
         gui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         gui.setTitle("Aux Codes App - Logged in as "+username);
         gui.setResizable(false);
+        gui.setState(JFrame.NORMAL);
        // gui.setSize(200,200);
        // gui.setVisible(true);   
 
